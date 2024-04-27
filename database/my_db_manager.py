@@ -6,6 +6,7 @@ from subprocess import Popen, PIPE
 class mysqlhelper:
     def __init__(self):
         self.mydb = mysql.connector.connect(host="172.30.112.1", user="pierre", password="one piece")
+
         self.initdatabase()
 
     def createUserTable(self):
@@ -24,10 +25,18 @@ class mysqlhelper:
         cursor = self.mydb.cursor()
         cursor.execute("USE multiplication_game")
         cursor.execute(f'SELECT Id FROM users WHERE UserName = "{userName}"')
-        return cursor.fetchone()[0]
+        value = cursor.fetchone()
+        return value[0] if value is not None else -1
+
+    def getUserPasswordFromuserName(self, userName):
+        cursor = self.mydb.cursor()
+        cursor.execute("USE multiplication_game")
+        cursor.execute(f'SELECT UserPassword FROM users WHERE UserName = "{userName}"')
+        value = cursor.fetchone()
+        return value[0] if value is not None else "Error" 
 
     def insertUser(self, name, password):
-        cursor = self.mydb.cursor()
+        cursor = self.mydb.cursor(buffered=True)
         cursor.execute("USE multiplication_game")
         insert_stmt = (
                 "INSERT INTO users (UserName, UserPassword)"

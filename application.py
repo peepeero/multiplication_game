@@ -2,7 +2,7 @@
 import customtkinter
 import tkinter as tk
 import random
-#from database import my_db_manager as dbm
+from database import my_db_manager as dbm
 from datetime import datetime
 import time
 from functools import reduce
@@ -55,16 +55,19 @@ class App(customtkinter.CTk):
         self.activeGrids = []
 
         self.title("Multiplication Game")
-        self.geometry("400x180")
+        self.geometry("400x200")
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
         self.loginFrame = LogInFrame(self)
         self.loginFrame.grid(row=0, column=0, padx=10, pady=(10,0), sticky="ew")
         self.login_button = customtkinter.CTkButton(self, text="Login", command=self.login)
-        self.login_button.grid(row=3, column=0, padx=10, pady=10, sticky="ew", columnspan=2)
+        self.login_button.grid(row=1, column=0, padx=10, pady=10, sticky="ew", columnspan=2)
+        self.register_button = customtkinter.CTkButton(self, text="Register", command=self.register)
+        self.register_button.grid(row=0, column=2, padx=10, pady=10, sticky="ew", columnspan=2)
         self.activeGrids.append(self.loginFrame)
         self.activeGrids.append(self.login_button)
+        self.activeGrids.append(self.register_button)
 
 
     def forgetCurrentGrid(self):
@@ -111,20 +114,28 @@ class App(customtkinter.CTk):
             self.gameGrid.grid_remove()
             self.answer_button.grid_remove()
             self.showScore()
+            self.myhelp.insertSinglePlayerGame(self.username, self.score, self.end - self.start)
             
-
-
 
     def login(self):
         values = self.loginFrame.get()
         self.username = values[0]
         self.password = values[1]
-        validated = ValidateUser(values)
-        if True:
-            print("They would have signed in")
+        self.myhelp = dbm.mysqlhelper()
+        if self.myhelp.getUserIdFromuserName(self.username.strip()) > 0 and self.myhelp.getUserPasswordFromuserName(self.username.strip()) == self.password:
             self.showStartFrame()
         else:
             tk.messagebox.showerror(title="Login Failed", message="Check your login, or sign up")
+
+    def register(self):
+        values = self.loginFrame.get()
+        self.username = values[0]
+        self.password = values[1]
+        self.myhelp = dbm.mysqlhelper()
+        if self.myhelp.getUserIdFromuserName(self.username) < 0:
+            self.myhelp.insertUser(self.username.strip(), self.password.strip())
+        else:
+            tk.messagebox.showerror(title="Register failed", message="username already exists in database")
 
 def main():
     app = App()

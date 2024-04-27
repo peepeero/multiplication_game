@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 import random
-from database import my_db_manager as dbm
 from datetime import datetime
 import time
 
