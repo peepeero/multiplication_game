@@ -8,7 +8,12 @@ from datetime import datetime
 import time
 from functools import reduce
 import pandas as pd
-import matplotlib as pd
+import matplotlib as plt
+from matplotlib import style
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
+from matplotlib.figure import Figure
+
+plt.use("TkAgg")
 
 
 def getRandomValues():
@@ -86,13 +91,38 @@ class App(customtkinter.CTk):
         self.startMultiGameButton = customtkinter.CTkButton(self, text="Start Multiplayer Game", command=self.startMultiGame)
         self.activeGrids.append(self.startMultiGameButton)
         self.startMultiGameButton.grid(row=1, column=0, padx=10, pady=10, sticky="ew", columnspan=2)
-        self.scoreOverTimeButton = customtkinter.CTkButton(self, text="Show my score over time", command=self.showScoreOverTime)
+        self.scoreOverTimeButton = customtkinter.CTkButton(self, text="Score Imp", command=self.showScoreOverTime)
         self.activeGrids.append(self.scoreOverTimeButton)
-        self.scoreOverTimeButton.grid(row=2, column=0, padx=10, pady=10, sticky="ew", columnspan=2)
+        self.scoreOverTimeButton.grid(row=2, column=0, padx=10, pady=10, sticky="ew", columnspan=1)
+        self.timeOverTimeButton = customtkinter.CTkButton(self, text="Time Imp", command=self.showTimeOverTime)
+        self.activeGrids.append(self.timeOverTimeButton)
+        self.timeOverTimeButton.grid(row=2, column=1, padx=10, pady=10, sticky="ew", columnspan=1)
 
 
     def showScoreOverTime(self):
-        db = fr.getHistoricalData(self.username)
+        df = fr.getHistoricalData(self.username)
+        f = Figure(figsize=(5,5), dpi=100)
+        a = f.add_subplot(111)
+        a.plot(df["OrderTimestamp"], df["Score"])
+
+        #create canvas
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row = 0, column=0, rowspan=3, columnspan=3, sticky='nsew')
+
+    def showTimeOverTime(self):
+        df = fr.getHistoricalData(self.username)
+        f = Figure(figsize=(5,5), dpi=100)
+        a = f.add_subplot(111)
+        a.plot(df["OrderTimestamp"], df["time"])
+
+        #create canvas
+
+        canvas = FigureCanvasTkAgg(f, self)
+        canvas.draw()
+        canvas.get_tk_widget().grid(row = 0, column=0, rowspan=3, columnspan=3, sticky='nsew')
+
     def checkIfThereAreTwoUsers(self):
         print("it's checking if there are two users again")
         resp = fr.check_if_two_users()

@@ -154,8 +154,18 @@ class mysqlhelper:
         self.createGameTable()
         self.createMultiGameTable()
 
-    def getHistoricalData(username):
-        return "thing"
+    def getHistoricalData(self, username):
+        cursor = self.mydb.cursor()
+        print("running")
+        cursor.execute("USE multiplication_game")
+        cursor.execute('SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = "singleplayergames"')
+        values = cursor.fetchall()
+        cols = [x[0] for x in values]
+        print(cols)
+        cursor.execute("SELECT * FROM singleplayergames ORDER BY GameID")
+        df = pd.DataFrame(cursor.fetchall(), columns=cols)
+        print("did it at least get to here")
+        return df
 
 
 def main():

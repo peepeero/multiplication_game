@@ -1,4 +1,6 @@
 import requests
+import pandas as pd
+
 
 host="localhost"
 port="5000"
@@ -39,7 +41,22 @@ def insertMultiPlayerGame(first, score, time):
     return response.json()
 
 def getHistoricalData(username):
-    url = f"http://{host}:{port}/get-historical-data/{username}/"
+    url = f"http://{host}:{port}/get-historical-data/{username}"
+    print(url)
     response = requests.get(url)
-    return response.json()
+    thing = str(response.json())
+    print(thing)
+    dty=["GameID", "Score", "time", "UserId", "OrderTimestamp"]
+    df = pd.read_json(thing, orient='values')
+    df.columns=dty
+    print(df)
+    df["OrderTimestamp"] = pd.to_datetime(df["OrderTimestamp"], unit='ms')
+    return df
+
+def main():
+    resp = getHistoricalData("Peter")
+    print(resp)
+
+if __name__ == "__main__":
+    main()
 

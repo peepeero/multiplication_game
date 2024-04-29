@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, Response
 import random
 from datetime import datetime
 import my_db_manager
@@ -117,10 +117,9 @@ def insert_multi_player_game(first, score, time):
 
 @app.route("/get-historical-data/<username>", methods=["GET"])
 def get_historical_data(username):
-    if not request.method == "GET":
-        return
-    data = { "username" : username}#dbman.getHistoricalData(username)
-    return jsonify(data), 201
+    df = dbman.getHistoricalData(username)
+    print("did we at least get the dataframe")
+    return Response(df.to_json(orient='values'), mimetype='application/json')
 
 if __name__ == "__main__":
     app.run()
